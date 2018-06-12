@@ -81,5 +81,114 @@ public class Labyrinth extends Canvas {
             }
         }
     }
+    private void drawJumper(Graphics g) {
+        int x = pointJumper.x()*FIELD_LENGTH;       
+        int y = pointJumper.y()*FIELD_LENGTH;
+        int w = FIELD_LENGTH-2;
+        int h = FIELD_LENGTH-2;
+        int reduce = FIELD_LENGTH / 6;
+        switch (direction)
+        {
+            case UP:    
+            case DOWN:
+                x += reduce; 
+                w -= 2*reduce; 
+                break;
+            case RIGHT:
+            case LEFT: 
+                y += reduce; 
+                h -= 2*reduce; 
+                break;
+        }
+        
+        Color color = Color.red; 
+        switch (state) 
+        {
+            case SEARCH: color = Color.green; break;
+            case HAND:   color = Color.red;   break;
+            case DONE:   color = Color.blue;  break;
+        }
+        g.setColor(color); //?
+        g.fillRect(x, y, w, h);
+
+        
+        g.setColor(Color.black);
+        g.drawString("" + turnCounter, x + FIELD_LENGTH/5, y + FIELD_LENGTH/2);
+        
+        // draw front
+        switch (direction)
+        {
+            case UP: 
+                h = reduce;   
+                break;
+            case RIGHT: 
+                x += (FIELD_LENGTH - reduce); 
+                w = reduce; 
+                break;
+            case DOWN: 
+                y += (FIELD_LENGTH - reduce);  
+                h = reduce;   
+                break;
+            case LEFT: 
+                w = reduce;   
+                break;
+        }
+        g.setColor(Color.black);
+        g.fillRect(x, y, w, h);
+    }
     
+    
+    @Override
+    public void paint(Graphics g) {
+        drawLabyrinth(g);
+        drawJumper(g);
+    }
+    
+    private class Point {
+        
+        public Point(int u, int v) {
+            x = u;
+            y = v;
+        }
+
+        public void setXY(int u, int v) {
+            x = u;
+            y = v;
+        }
+        
+        public int x() {
+            return x;
+        }
+        
+        public int y() {
+            return y;
+        }
+        
+        private int x;
+        private int y;
+    }
+    
+    private Point getStartPoint() {
+        int width = getLayoutWidth();
+        int height = getLayoutHeight();
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                int code = getFieldCode(x, y);
+                if (code == 2) {
+                    return new Point(x, y);
+                }
+            }
+        }
+        return new Point(0, 0);
+    }
+  
+    
+    enum Direction {
+        UP,
+        RIGHT,
+        DOWN,
+        LEFT
+    }
    
