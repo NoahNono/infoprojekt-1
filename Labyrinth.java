@@ -191,4 +191,76 @@ public class Labyrinth extends Canvas {
         DOWN,
         LEFT
     }
-   
+   enum State {
+        SEARCH,
+        HAND,
+        DONE
+    }
+    
+    private Point getForwardPoint()
+    {
+        int x = pointJumper.x();
+        int y = pointJumper.y();
+        switch (direction)
+        {
+            case UP:    y--; break;
+            case RIGHT: x++; break;
+            case DOWN:  y++; break;
+            case LEFT:  x--; break;
+        }
+        return new Point(x, y);
+    }
+    
+    private Point getRightPoint()
+    {
+        int x = pointJumper.x();
+        int y = pointJumper.y();
+        switch (direction)
+        {
+            case UP:    x++; break;
+            case RIGHT: y++; break;
+            case DOWN:  x--; break;
+            case LEFT:  y--; break;
+        }
+        return new Point(x, y);
+    
+    }
+    
+    private Point getLeftPoint()
+    {
+        int x = pointJumper.x();
+        int y = pointJumper.y();
+        switch (direction)
+        {
+            case UP:    x--; break;
+            case RIGHT: y--; break;
+            case DOWN:  x++; break;
+            case LEFT:  y++; break;
+        }
+        return new Point(x, y);
+    }
+    
+    private void turnRight()
+    {
+        turnCounter++;
+        switch (direction)
+        {
+            case UP:    direction = Direction.RIGHT; break;
+            case RIGHT: direction = Direction.DOWN;  break;
+            case DOWN:  direction = Direction.LEFT;  break;
+            case LEFT:  direction = Direction.UP;    break;
+        }
+    }
+    
+    private void turnLeft()
+    {
+        turnCounter--;
+        switch (direction)
+        {
+            case UP:    direction = Direction.LEFT;  break;
+            case RIGHT: direction = Direction.UP;    break;
+            case DOWN:  direction = Direction.RIGHT; break;
+            case LEFT:  direction = Direction.DOWN;  break;
+        }
+    }
+    
