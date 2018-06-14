@@ -18,7 +18,7 @@ public class Labyrinth extends Canvas {
         layout = l;
         pointJumper = getStartPoint();      //Startpubkt soll entnommen werden
         Timer timer = new Timer();          //Timer wird erstellt
-        timer.scheduleAtFixedRate(new FrameTimerTask(), 1000, 200); 
+        timer.scheduleAtFixedRate(new FrameTimerTask(), 1000, 200);
     }
     
     private class FrameTimerTask extends TimerTask {
@@ -30,7 +30,7 @@ public class Labyrinth extends Canvas {
         }
     }    
 
-    private int FIELD_LENGTH = 50;
+    private int FIELD_LENGTH = 100;
     
     public int getViewWidth() {
         return getLayoutWidth() * FIELD_LENGTH; 
@@ -48,8 +48,8 @@ public class Labyrinth extends Canvas {
     }
     
     private int getFieldCode(int x, int y) {
-        int code = -1;
-        if (x >= 0 && y >= 0 && x < getLayoutWidth() && y < getLayoutHeight())
+        int code = -1; //initalisierung (holt code aus dem layout raus) alles auuserhalb des laybrinths ist -1
+        if (x >= 0 && y >= 0 && x < getLayoutWidth() && y < getLayoutHeight()) 
         {
             code = layout[y][x];
         }
@@ -81,18 +81,19 @@ public class Labyrinth extends Canvas {
             }
         }
     }
+    
     private void drawJumper(Graphics g) {
-        int x = pointJumper.x()*FIELD_LENGTH;       
+        int x = pointJumper.x()*FIELD_LENGTH;       //?
         int y = pointJumper.y()*FIELD_LENGTH;
-        int w = FIELD_LENGTH-2;
-        int h = FIELD_LENGTH-2;
-        int reduce = FIELD_LENGTH / 6;
+        int w = FIELD_LENGTH;
+        int h = FIELD_LENGTH;
+        int reduce = FIELD_LENGTH / 6; //um die 6tel der feldlänge reduziert
         switch (direction)
         {
             case UP:    
             case DOWN:
-                x += reduce; 
-                w -= 2*reduce; 
+                x += reduce; //verschoben nach rechts
+                w -= 2*reduce; //verringert sich um reduce auf beiden seiten
                 break;
             case RIGHT:
             case LEFT: 
@@ -102,13 +103,13 @@ public class Labyrinth extends Canvas {
         }
         
         Color color = Color.red; 
-        switch (state) 
+        switch (state) //bei Änderung des Statuses setzte entsprechende farbe fest
         {
             case SEARCH: color = Color.green; break;
             case HAND:   color = Color.red;   break;
             case DONE:   color = Color.blue;  break;
         }
-        g.setColor(color); //?
+        g.setColor(color); //nehme jeweilige farbe an
         g.fillRect(x, y, w, h);
 
         
@@ -138,13 +139,14 @@ public class Labyrinth extends Canvas {
     }
     
     
-    @Override
+    @Override //eigene Methode(aus der basisklasse)muss überschrieben, ansonsten würd enichts gezeichnet werden (würde eigene methode aurfuen, ist leer implementiert)wie ein plug in
     public void paint(Graphics g) {
         drawLabyrinth(g);
         drawJumper(g);
     }
     
-    private class Point {
+    
+    private class Point { //darstellung der position
         
         public Point(int u, int v) {
             x = u;
@@ -156,11 +158,11 @@ public class Labyrinth extends Canvas {
             y = v;
         }
         
-        public int x() {
+        public int x() { //Auswertung der Werte
             return x;
         }
         
-        public int y() {
+        public int y() { //Auswertung der WErte
             return y;
         }
         
@@ -191,7 +193,12 @@ public class Labyrinth extends Canvas {
         DOWN,
         LEFT
     }
-   enum State {
+    
+    //////////////////////
+    // ALGORITHMUS
+    //////////////////////
+    
+    enum State {
         SEARCH,
         HAND,
         DONE
@@ -264,3 +271,71 @@ public class Labyrinth extends Canvas {
         }
     }
     
+    private boolean isWall(int code)
+    {
+        boolean wall = (code == 0 || code == 3);
+        return wall;
+    }
+    
+    
+    private void nextStep() {                                 
+
+        int code;
+        code = -1; 
+        if (state == State.SEARCH) {
+            Point forward = getForwardPoint();
+            code = getFieldCode(forward);
+            if (isWall(code)) {
+                turnRight();
+                state = State.HAND;
+            }
+            else {
+                if (code != -1)
+                {
+                    pointJumper = forward;
+                }
+            }
+        }
+        else if (state == State.HAND) {
+            Point left = getLeftPoint();
+            code = getFieldCode(left);
+            if (!isWall(code)) {
+                turnLeft();
+                if (code != -1)
+                {
+                    pointJumper = left;
+                }
+            }
+            else {
+                Point forward = getForwardPoint(); //entnehmen psoition
+                code = getFieldCode(forward); //was ist vor dem springer
+                if (isWall(code)) {
+                    turnRight();
+                }
+                else {
+                    if (code != -1)
+                    {
+                        pointJumper = forward;
+                    }
+                }
+            }
+            if (turnCounter == 0) {
+                state = State.SEARCH;
+            }
+            if (code == -1) //ist ausserhalb vom labyrinth -->hört mit bewegung auf
+            {
+                state = State.DONE;
+                System.out.println("FINISH");
+            }
+        }                                                   
+     }
+            
+    Point pointJumper; 
+    Direction direction = Direction.UP; //Springer ist am Anfagn nach vorne ausgerichtet
+    State state = State.SEARCH; //geht in den zu+stand search
+    int turnCounter = 0; //Umdrehungszähler wird auf 0 gesetzt
+    
+    private int[][] layout; //Datenstruktur aus Statisch.java entnommen
+    
+    
+}
