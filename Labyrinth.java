@@ -139,7 +139,8 @@ public class Labyrinth extends Canvas {
     }
     
     
-    @Override //eigene Methode(aus der basisklasse)muss überschrieben, ansonsten würd enichts gezeichnet werden (würde eigene methode aurfuen, ist leer implementiert)wie ein plug in
+    @Override //eigene Methode(aus der basisklasse)muss überschrieben, ansonsten würde 
+    //nichts gezeichnet werden (würde eigene methode aurfuen, ist leer implementiert wie ein plug in
     public void paint(Graphics g) {
         drawLabyrinth(g);
         drawJumper(g);
