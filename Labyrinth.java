@@ -83,7 +83,7 @@ public class Labyrinth extends Canvas {
     }
     
     private void drawJumper(Graphics g) {
-        int x = pointJumper.x()*FIELD_LENGTH;       //?
+        int x = pointJumper.x()*FIELD_LENGTH;       //Größe des Springers
         int y = pointJumper.y()*FIELD_LENGTH;
         int w = FIELD_LENGTH;
         int h = FIELD_LENGTH;
@@ -93,12 +93,12 @@ public class Labyrinth extends Canvas {
             case UP:    
             case DOWN:
                 x += reduce; //verschoben nach rechts
-                w -= 2*reduce; //verringert sich um reduce auf beiden seiten
+                w -= 2*reduce; //verringert sich um reduce auf beiden seiten (Breite)
                 break;
             case RIGHT:
             case LEFT: 
-                y += reduce; 
-                h -= 2*reduce; 
+                y += reduce; //verschoben nach unten
+                h -= 2*reduce; //verringert sich um reduce auf beiden Seiten (Höhe)
                 break;
         }
         
@@ -170,7 +170,7 @@ public class Labyrinth extends Canvas {
         private int y;
     }
     
-    private Point getStartPoint() {
+    private Point getStartPoint() { //entnehme Startposition
         int width = getLayoutWidth();
         int height = getLayoutHeight();
         for (int x = 0; x < width; x++)
@@ -178,8 +178,8 @@ public class Labyrinth extends Canvas {
             for (int y = 0; y < height; y++)
             {
                 int code = getFieldCode(x, y);
-                if (code == 2) {
-                    return new Point(x, y);
+                if (code == 2) { //wenn am Startpunkt
+                    return new Point(x, y); //Ausgabe der neuen Position
                 }
             }
         }
@@ -193,11 +193,10 @@ public class Labyrinth extends Canvas {
         DOWN,
         LEFT
     }
-    
-    //////////////////////
+   
+   
     // ALGORITHMUS
-    //////////////////////
-    
+   
     enum State {
         SEARCH,
         HAND,
@@ -210,46 +209,46 @@ public class Labyrinth extends Canvas {
         int y = pointJumper.y();
         switch (direction)
         {
-            case UP:    y--; break;
-            case RIGHT: x++; break;
-            case DOWN:  y++; break;
-            case LEFT:  x--; break;
+            case UP:    y--; break; //gehe in negative y-Richutng um nach vorne zu gehe
+            case RIGHT: x++; break; //gehe in pos. x-Richtung um nach rechts zu gehen
+            case DOWN:  y++; break; //gehe in pos. y-Richutng um nach unten zu gehen
+            case LEFT:  x--; break; //gehe in neh. x-Richtugn um nach unten zu gehen
         }
-        return new Point(x, y);
+        return new Point(x, y); //Asugabe der Position
     }
     
-    private Point getRightPoint()
+    private Point getRightPoint() //für den Fall dass der Springer nach rechts zeigt
     {
         int x = pointJumper.x();
         int y = pointJumper.y();
         switch (direction)
         {
-            case UP:    x++; break;
-            case RIGHT: y++; break;
-            case DOWN:  x--; break;
-            case LEFT:  y--; break;
+            case UP:    x++; break; //gehe in pos. x-Richutng um nach oben zu gehen
+            case RIGHT: y++; break; //gehe in pos. y-Richutng um nach rechts zu gehen
+            case DOWN:  x--; break; //gehe in neg. x-Richtugn um nach unten zu gehen
+            case LEFT:  y--; break; //gehe in neg. y-Richutng um nach links zu gehen
         }
-        return new Point(x, y);
+        return new Point(x, y); //Ausgabe der position
     
     }
     
-    private Point getLeftPoint()
+    private Point getLeftPoint() //für den FAll dass der Springer nach links zeigt
     {
         int x = pointJumper.x();
         int y = pointJumper.y();
         switch (direction)
         {
-            case UP:    x--; break;
-            case RIGHT: y--; break;
-            case DOWN:  x++; break;
-            case LEFT:  y++; break;
+            case UP:    x--; break; //gehe in neg. x-Richutgn um nach oben zu gehen
+            case RIGHT: y--; break; //gehe in neg. y-Richtung um nach rechts zu gehen
+            case DOWN:  x++; break; //gehe in pos. x-Richtung um nach unten zu gehen
+            case LEFT:  y++; break; //gehe in pos. y-Richtung um nach links zu gehen
         }
         return new Point(x, y);
     }
     
     private void turnRight()
     {
-        turnCounter++;
+        turnCounter++; //für jede Rehctsdrehung um 1 erhöhen
         switch (direction)
         {
             case UP:    direction = Direction.RIGHT; break;
@@ -261,7 +260,7 @@ public class Labyrinth extends Canvas {
     
     private void turnLeft()
     {
-        turnCounter--;
+        turnCounter--; //für jede Linksdrehung um 1 niedriger machen
         switch (direction)
         {
             case UP:    direction = Direction.LEFT;  break;
@@ -271,7 +270,7 @@ public class Labyrinth extends Canvas {
         }
     }
     
-    private boolean isWall(int code)
+    private boolean isWall(int code) 
     {
         boolean wall = (code == 0 || code == 3);
         return wall;
@@ -282,50 +281,49 @@ public class Labyrinth extends Canvas {
 
         int code;
         code = -1; 
-        if (state == State.SEARCH) {
-            Point forward = getForwardPoint();
-            code = getFieldCode(forward);
-            if (isWall(code)) {
-                turnRight();
-                state = State.HAND;
+        if (state == State.SEARCH) { //wenn im Status Search
+            Point forward = getForwardPoint(); //Asurichtugn des Soringers nach vorne
+            code = getFieldCode(forward); //entnehme Position 
+            if (isWall(code)) { //wenn auf eine Wand getroffen
+                turnRight(); // Rechtsdrehung
+                state = State.HAND; //gehe in Status Rechte-Hand-Regel
             }
             else {
-                if (code != -1)
+                if (code != -1) //wenn Springer nicht ausserhalb vom Labyrinth
                 {
-                    pointJumper = forward;
+                    pointJumper = forward; //Ausrichtung des Springers nach vorn
                 }
             }
         }
-        else if (state == State.HAND) {
-            Point left = getLeftPoint();
-            code = getFieldCode(left);
-            if (!isWall(code)) {
-                turnLeft();
-                if (code != -1)
+        else if (state == State.HAND) { //wenn im Status Hand
+            Point left = getLeftPoint(); //schaue was links ist
+            code = getFieldCode(left); // entnehme position des linken Feldes
+            if (!isWall(code)) { //wenn keine Wand
+                turnLeft(); //Linksdrehung
+                if (code != -1) //wenn Springer nicht ausserhalb vom Labyrinth
                 {
-                    pointJumper = left;
+                    pointJumper = left; // Ausrichtung nach links
                 }
             }
             else {
                 Point forward = getForwardPoint(); //entnehmen psoition
                 code = getFieldCode(forward); //was ist vor dem springer
-                if (isWall(code)) {
-                    turnRight();
+                if (isWall(code)) { //wenn auf Wand getroffen
+                    turnRight(); //Rechtsdrehung
                 }
                 else {
-                    if (code != -1)
+                    if (code != -1) //wenn nicht ausserhalb vom Laybrinth
                     {
-                        pointJumper = forward;
+                        pointJumper = forward; //Ausrichutng des Springers nach vorn
                     }
                 }
             }
-            if (turnCounter == 0) {
-                state = State.SEARCH;
+            if (turnCounter == 0) { //wenn Umdrehungszähler = 0
+                state = State.SEARCH; //gehe in Zustand Search
             }
             if (code == -1) //ist ausserhalb vom labyrinth -->hört mit bewegung auf
             {
                 state = State.DONE;
-                System.out.println("FINISH");
             }
         }                                                   
      }
